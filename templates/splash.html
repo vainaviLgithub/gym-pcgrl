@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <style>
+        @font-face {
+            font-family: 'TechnoRace';
+            src: url('/static/fonts/TechnoRaceItalic.ttf') format('truetype');
+            font-style: italic;
+        }
+        body {
+            background: url('/static/assets/taxi_bg.jpg') no-repeat center center fixed;
+            background-size: cover;
+            margin: 0;
+            min-height: 100vh;
+            font-family: 'TechnoRace', 'Press Start 2P', sans-serif;
+            color: #00008c;
+            overflow-x: hidden;
+        }
+
+        h1 {
+            color: #00008c;
+            font-size: 64px;
+            margin: 20px 0 10px;
+            text-shadow: 3px 3px #00008c;
+            text-align: center;
+        }
+
+        .button-container {
+            text-align: center;
+            margin: 20px 0 40px;
+        }
+
+        button {
+            background-color: #ffffffcc;
+            color: #00008c;
+            font-family: 'TechnoRace', 'Press Start 2P', sans-serif;
+            font-weight: bold;
+            border: 3px solid #00008c;
+            padding: 12px 24px;
+            font-size: 16px;
+            cursor: pointer;
+            border-radius: 8px;
+            box-shadow: 2px 2px 5px rgba(0, 0, 0, 0.4);
+            transition: all 0.2s ease-in-out;
+        }
+
+        button:hover {
+            background-color: #00008c;
+            color: #ffffff;
+            transform: scale(1.05);
+        }
+
+        a.button {
+            text-decoration: none;
+        }
+
+        .rules-card {
+            max-width: 850px;
+            margin: 0 auto;
+            margin-top: 30px; /* Pushed content lower */
+            padding: 10px;
+            text-align: center;
+            font-size: 16px;
+            line-height: 1.4;
+            color: #000033;
+            font-family: 'TechnoRace', 'Press Start 2P', sans-serif;
+        }
+
+        .rule-heading {
+            color: #ffffff;
+            text-shadow: -1px -1px 0 #000, 1px -1px 0 #000, -1px 1px 0 #000, 1px 1px 0 #000;
+            margin: 6px 0 2px;
+            font-size: 20px;
+        }
+
+        .rule-heading.main {
+            font-size: 25px;
+            margin-bottom: 10px;
+        }
+    </style>
+    <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
+</head>
+<body>
+    <h1>Procedural Taxi Game</h1>
+
+    <div class='button-container'>
+        <a href="/game" class="button"><button>Let's Play!</button></a>
+    </div>
+
+    <div class="rules-card">
+        <div class="rule-heading main">Game Rules</div>
+
+        <div class="rule-heading">Agent Play</div>
+        Click ▶️ to watch the AI play.
+
+        <div class="rule-heading">Human Play</div>
+        Click 🎬, then use ⬆️⬅️⬇️➡️ to move the taxi (T), pick up the passenger (P), and drop them at the goal (D).
+
+        <div class="rule-heading">Rewards</div>
+        -0.1 per step | +5 for pickup | +15 for drop-off | -0.5 for staying still
+
+        <div class="rule-heading">Challenge</div>
+        Complete the level in up to 50 steps.
+
+        <div class="rule-heading">Goal</div>
+        Outscore the AI and become the ultimate taxi master!
+    </div>
+</body>
+</html>

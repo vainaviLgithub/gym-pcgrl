@@ -1,0 +1,613 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+        body {
+            background-image: url('/static/assets/taxi_bg.jpg');
+            background-size: cover;
+            background-position: center;
+            background-attachment: fixed;
+            margin: 0;
+            color: #ffffff;
+            font-family: 'Press Start 2P', Arial, sans-serif;
+            text-align: center;
+            min-height: 100vh;
+        }
+        h1, h3 {
+            color: #ffffff;
+            margin: 20px 0;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+        }
+        .three-column-layout {
+            display: flex;
+            justify-content: space-around;
+            padding: 20px;
+            gap: 15px;
+            flex-wrap: wrap;
+        }
+        .column {
+            flex: 1;
+            min-width: 300px;
+            margin: 15px;
+            border: 1px solid #1e3a8a;
+            padding: 15px;
+            border-radius: 12px;
+            background: #1e3a8a;
+            box-shadow: 0 6px 15px rgba(0,0,0,0.3);
+        }
+        .grid-container {
+            padding: 0;
+            background: #ffffff;
+            border-radius: 8px;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+            display: grid;
+            grid-template-columns: repeat(10, 40px);
+            grid-template-rows: repeat(10, 40px);
+            width: 400px;
+            height: 400px;
+            margin: auto;
+            line-height: 0;
+        }
+        .grid-cell {
+            width: 40px;
+            height: 40px;
+            object-fit: contain;
+            vertical-align: top;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        .grid-cell img {
+            max-width: 100%;
+            max-height: 100%;
+            width: 40px;
+            height: 40px;
+        }
+        .reward-box {
+            background-color: #1e3a8a;
+            color: #ffffff;
+            padding: 15px;
+            border-radius: 8px;
+            margin: 10px 0;
+            font-size: 14px;
+            border-left: 4px solid #60a5fa;
+            text-align: center;
+        }
+        button {
+            background-color: #ffffff;
+            color: #1e3a8a;
+            font-weight: bold;
+            border-radius: 8px;
+            padding: 12px 24px;
+            font-size: 14px;
+            margin: 8px;
+            cursor: pointer;
+            border: none;
+            transition: transform 0.2s, box-shadow 0.2s;
+            position: relative;
+        }
+        button:hover {
+            transform: scale(1.05);
+            box-shadow: 0 0 20px #60a5fa;
+        }
+        button:disabled {
+            background-color: #6b7280;
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+        }
+        button.loading::after {
+            content: '';
+            display: inline-block;
+            width: 16px;
+            height: 16px;
+            border: 2px solid #1e3a8a;
+            border-top: 2px solid transparent;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            position: absolute;
+            right: 10px;
+            top: 50%;
+            transform: translateY(-50%);
+        }
+        @keyframes spin {
+            0% { transform: translateY(-50%) rotate(0deg); }
+            100% { transform: translateY(-50%) rotate(360deg); }
+        }
+        .action-button {
+            background-color: #ffffff;
+            width: 60px;
+            border-radius: 6px;
+        }
+        .action-button:hover {
+            transform: scale(1.05);
+            box-shadow: 0 0 20px #ffffff;
+        }
+        #progress-container {
+            height: 12px;
+            width: 100%;
+            background-color: #4b5563;
+            margin-top: 8px;
+            border-radius: 6px;
+        }
+        #progress-bar {
+            height: 100%;
+            background-color: #60a5fa;
+            width: 0%;
+            border-radius: 6px;
+            transition: width 0.3s;
+        }
+        select {
+            font-family: 'Press Start 2P', Arial, sans-serif;
+            padding: 8px;
+            margin-bottom: 15px;
+            border-radius: 6px;
+            font-size: 14px;
+            background-color: #2563eb;
+            color: #ffffff;
+            border: 1px solid #60a5fa;
+        }
+        #step-display {
+            margin-top: 15px;
+            max-height: 220px;
+            overflow-y: auto;
+            font-size: 12px;
+            text-align: left;
+            padding: 8px;
+            background-color: #1e3a8a;
+            color: #ffffff;
+            border-radius: 6px;
+        }
+        .error {
+            color: #f87171;
+            font-size: 14px;
+            margin: 10px 0;
+        }
+        .instructions {
+            background-color: #2563eb;
+            color: #ffffff;
+            padding: 15px;
+            border-radius: 8px;
+            margin: 15px auto;
+            border-left: 4px solid #60a5fa;
+            font-size: 14px;
+            max-width: 900px;
+            text-align: center;
+        }
+    </style>
+    <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
+</head>
+<body>
+        <label for="difficulty" style="color: #1e3a8a;">Choose Difficulty:</label>
+        <select id="difficulty">
+            <option value="easy">Easy</option>
+            <option value="medium">Medium</option>
+            <option value="hard">Hard</option>
+        </select>
+        <button id="generate-level">Generate New Level</button>
+    </div>
+    <div class="three-column-layout">
+        <div class="column">
+            <h3>Agent Play</h3>
+            <button id="play-agent">▶️ Play Agent</button>
+            <div id="agent-status"></div>
+            <div id="agent-grid" class="grid-container"></div>
+            <div id="progress-container"><div id="progress-bar"></div></div>
+            <div id="step-display"></div>
+            <div id="agent-error" class="error"></div>
+        </div>
+        <div class="column">
+            <h3>Human Play</h3>
+            <button id="start-human">🎬 Start Human Play</button>
+            <div id="human-status"></div>
+            <div id="human-grid" class="grid-container"></div>
+            <div>
+                <button id="up" class="action-button">⬆️</button>
+                <button id="left" class="action-button">⬅️</button>
+                <button id="down" class="action-button">⬇️</button>
+                <button id="right" class="action-button">➡️</button>
+            </div>
+            <div id="human-reward" class="reward-box"></div>
+            <div id="human-error" class="error"></div>
+        </div>
+        <div class="column">
+            <h3>Original Level Grid</h3>
+            <div id="original-grid" class="grid-container"></div>
+        </div>
+    </div>
+    <div id="reward-comparison" class="reward-box"></div>
+    <script>
+        let base64Images = {};
+        let currentDifficulty = 'easy';
+        let initialLevel = null;
+        let agentSteps = 0;
+        let agentReward = null;
+        let humanSteps = 0;
+        let humanReward = 0.0;
+        let humanDone = false;
+        let isAgentPlaying = false;
+        let isHumanPlaying = false;
+
+        async function fetchWithRetry(url, options = {}, retries = 3, delay = 1000) {
+            for (let i = 0; i < retries; i++) {
+                try {
+                    console.log(`Attempting fetch to ${url}, attempt ${i + 1}`);
+                    const response = await fetch(url, options);
+                    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+                    const data = await response.json();
+                    console.log(`Fetch ${url} attempt ${i + 1} success:`, data);
+                    return data;
+                } catch (e) {
+                    console.error(`Fetch ${url} attempt ${i + 1} failed: ${e.message}`);
+                    if (i === retries - 1) throw e;
+                    await new Promise(resolve => setTimeout(resolve, delay));
+                }
+            }
+        }
+
+        async function initialize() {
+            console.log("Initializing game...");
+            document.getElementById('agent-error').innerHTML = '';
+            document.getElementById('human-error').innerHTML = '';
+            try {
+                const data = await fetchWithRetry('/api/reset_game', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ difficulty: 'easy' })
+                });
+                console.log("Initialize response:", JSON.stringify(data, null, 2));
+                if (data.success && data.initial_level && data.initial_level.grid && Array.isArray(data.initial_level.grid) && data.obs && Array.isArray(data.obs)) {
+                    initialLevel = data.initial_level;
+                    currentDifficulty = data.current_difficulty;
+                    agentSteps = data.agent_steps;
+                    agentReward = data.agent_reward;
+                    humanSteps = data.human_steps;
+                    humanReward = data.human_reward;
+                    humanDone = data.human_done;
+                    document.getElementById('difficulty').value = currentDifficulty;
+                    base64Images = await fetchWithRetry('/api/get_images');
+                    console.log("Base64 images loaded:", Object.keys(base64Images));
+                    resetGame();
+                    console.log("Initialization successful");
+                } else {
+                    const errorMsg = data.error || `Invalid response: success=${data.success}, initial_level=${!!data.initial_level}, grid=${data.initial_level ? !!data.initial_level.grid : false}, obs=${!!data.obs}`;
+                    console.error("Initialize error details:", errorMsg, data);
+                    throw new Error(errorMsg);
+                }
+            } catch (e) {
+                console.error("Initialization error:", e.message);
+                document.getElementById('agent-error').innerHTML = `Initialization Error: ${e.message}. Check server logs and browser console for details.`;
+                document.getElementById('human-error').innerHTML = `Initialization Error: ${e.message}. Check server logs and browser console for details.`;
+            }
+        }
+
+        function renderGrid(grid, targetId, source = 'list', initialPositions = null) {
+            try {
+                let renderGrid;
+                if (source === 'list') {
+                    renderGrid = grid;
+                } else {
+                    renderGrid = JSON.parse(JSON.stringify(grid));
+                    if (initialPositions) {
+                        if (initialPositions.taxi) renderGrid[initialPositions.taxi[0]][initialPositions.taxi[1]] = 'T';
+                        if (initialPositions.passenger) renderGrid[initialPositions.passenger[0]][initialPositions.passenger[1]] = 'P';
+                        if (initialPositions.dropoff) renderGrid[initialPositions.dropoff[0]][initialPositions.dropoff[1]] = 'D';
+                    }
+                }
+                if (!Array.isArray(renderGrid) || renderGrid.length !== 10 || renderGrid.some(row => !Array.isArray(row) || row.length !== 10)) {
+                    throw new Error(`Grid must be 10x10. Got ${renderGrid.length}x${renderGrid[0]?.length || 0}`);
+                }
+                let html = '<div class="grid-container">';
+                for (let i = 0; i < 10; i++) {
+                    for (let j = 0; j < 10; j++) {
+                        const cell = renderGrid[i][j] || '0';
+                        const imgSrc = base64Images[cell] || base64Images['0'] || '';
+                        if (!imgSrc) {
+                            console.warn(`No image for cell ${cell} at [${i},${j}]`);
+                        }
+                        html += `<div class="grid-cell"><img src="${imgSrc}" alt="${cell}"></div>`;
+                    }
+                }
+                html += '</div>';
+                document.getElementById(targetId).innerHTML = html;
+            } catch (e) {
+                console.error(`Error rendering grid for ${targetId}: ${e.message}`);
+                document.getElementById(targetId).innerHTML = `<div class="error">Error rendering grid: ${e.message}</div>`;
+                document.getElementById(`${targetId.split('-')[0]}-error`).innerHTML = `Error rendering grid: ${e.message}`;
+            }
+        }
+
+        async function loadNewLevel() {
+            console.log("loadNewLevel called with difficulty:", document.getElementById('difficulty').value);
+            const selected = document.getElementById('difficulty').value;
+            currentDifficulty = selected;
+            const generateButton = document.getElementById('generate-level');
+            generateButton.disabled = true;
+            generateButton.classList.add('loading');
+            document.getElementById('agent-error').innerHTML = '';
+            document.getElementById('human-error').innerHTML = '';
+            try {
+                const data = await fetchWithRetry('/api/reset_game', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ difficulty: currentDifficulty })
+                });
+                console.log("Reset game response:", JSON.stringify(data, null, 2));
+                if (data.success && data.initial_level && data.initial_level.grid && Array.isArray(data.initial_level.grid) && data.obs && Array.isArray(data.obs)) {
+                    initialLevel = data.initial_level;
+                    agentSteps = data.agent_steps;
+                    agentReward = data.agent_reward;
+                    humanSteps = data.human_steps;
+                    humanReward = data.human_reward;
+                    humanDone = data.human_done;
+                    isAgentPlaying = false;
+                    isHumanPlaying = false;
+                    resetGame();
+                    console.log("New level loaded successfully");
+                } else {
+                    const errorMsg = data.error || `Invalid response: success=${data.success}, initial_level=${!!data.initial_level}, grid=${data.initial_level ? !!data.initial_level.grid : false}, obs=${!!data.obs}`;
+                    console.error("Reset game error details:", errorMsg, data);
+                    throw new Error(errorMsg);
+                }
+            } catch (e) {
+                console.error("Load new level error:", e.message);
+                document.getElementById('agent-error').innerHTML = `Error: ${e.message}. Check server logs and browser console for details.`;
+                document.getElementById('human-error').innerHTML = `Error: ${e.message}. Check server logs and browser console for details.`;
+            } finally {
+                generateButton.disabled = false;
+                generateButton.classList.remove('loading');
+            }
+        }
+
+        function resetGame() {
+            console.log("Resetting game UI...");
+            agentSteps = 0;
+            agentReward = null;
+            humanSteps = 0;
+            humanReward = 0.0;
+            humanDone = false;
+            isAgentPlaying = false;
+            isHumanPlaying = false;
+            document.getElementById('play-agent').disabled = false;
+            document.getElementById('play-agent').classList.remove('loading');
+            document.getElementById('start-human').disabled = false;
+            document.getElementById('start-human').classList.remove('loading');
+            document.getElementById('agent-status').innerHTML = '';
+            document.getElementById('human-status').innerHTML = '';
+            document.getElementById('human-reward').innerHTML = '';
+            document.getElementById('reward-comparison').innerHTML = '';
+            document.getElementById('progress-bar').style.width = '0%';
+            document.getElementById('step-display').innerHTML = '';
+            document.getElementById('agent-error').innerHTML = '';
+            document.getElementById('human-error').innerHTML = '';
+            if (initialLevel && initialLevel.grid && Array.isArray(initialLevel.grid) && initialLevel.grid.length === 10 && initialLevel.grid.every(row => Array.isArray(row) && row.length === 10)) {
+                renderGrid(initialLevel.grid, 'original-grid', 'initial', {
+                    taxi: initialLevel.taxi,
+                    passenger: initialLevel.passenger,
+                    dropoff: initialLevel.dropoff
+                });
+                renderGrid(initialLevel.grid, 'agent-grid', 'initial', {
+                    taxi: initialLevel.taxi,
+                    passenger: initialLevel.passenger,
+                    dropoff: initialLevel.dropoff
+                });
+                renderGrid(initialLevel.grid, 'human-grid', 'initial', {
+                    taxi: initialLevel.taxi,
+                    passenger: initialLevel.passenger,
+                    dropoff: initialLevel.dropoff
+                });
+                console.log("Game UI reset with new level");
+            } else {
+                console.error("No valid level to reset game UI:", initialLevel);
+                document.getElementById('original-grid').innerHTML = '<div class="error">No level loaded</div>';
+                document.getElementById('agent-error').innerHTML = 'Error: No valid level loaded. Check server logs and browser console for details.';
+                document.getElementById('human-error').innerHTML = 'Error: No valid level loaded. Check server logs and browser console for details.';
+            }
+        }
+
+        async function playAgent() {
+            console.log("playAgent called");
+            if (isAgentPlaying || agentReward !== null || !initialLevel || !initialLevel.grid) {
+                const errorMsg = 'No level loaded or agent already played. Please generate a new level.';
+                document.getElementById('agent-error').innerHTML = `Error: ${errorMsg}`;
+                console.error("Agent play blocked:", errorMsg);
+                return;
+            }
+            isAgentPlaying = true;
+            const playButton = document.getElementById('play-agent');
+            playButton.disabled = true;
+            playButton.classList.add('loading');
+            document.getElementById('agent-error').innerHTML = '';
+            try {
+                const data = await fetchWithRetry('/api/play_agent', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({})
+                });
+                console.log("Agent play response:", JSON.stringify(data, null, 2));
+                if (!data.success) {
+                    document.getElementById('agent-error').innerHTML = `Error: ${data.error}`;
+                    isAgentPlaying = false;
+                    playButton.disabled = false;
+                    playButton.classList.remove('loading');
+                    return;
+                }
+                agentSteps = data.steps;
+                agentReward = data.reward;
+                let stepIndex = 0;
+                const maxSteps = data.steps_data.length;
+                function showNextStep() {
+                    if (stepIndex < maxSteps) {
+                        const step = data.steps_data[stepIndex];
+                        document.getElementById('agent-status').innerHTML = `<h4>Step ${step.step}/${maxSteps} | Reward: ${step.reward.toFixed(2)} | Total: ${agentReward.toFixed(2)}</h4>`;
+                        document.getElementById('step-display').innerHTML += `<p>Step ${step.step} - Reward: ${step.reward.toFixed(2)}</p>`;
+                        renderGrid(step.grid, 'agent-grid', 'list');
+                        document.getElementById('progress-bar').style.width = `${(step.step / maxSteps) * 100}%`;
+                        document.getElementById('step-display').scrollTop = document.getElementById('step-display').scrollHeight;
+                        stepIndex++;
+                        setTimeout(showNextStep, 500); // 500ms delay between steps
+                    } else {
+                        document.getElementById('agent-status').innerHTML = `<h4>Final Reward: ${agentReward.toFixed(2)}</h4>`;
+                        updateRewardComparison();
+                        isAgentPlaying = false;
+                        playButton.disabled = false;
+                        playButton.classList.remove('loading');
+                        console.log("Agent play completed");
+                    }
+                }
+                showNextStep();
+            } catch (e) {
+                console.error("Agent play error:", e.message);
+                document.getElementById('agent-error').innerHTML = `Error: ${e.message}. Check server logs and browser console for details.`;
+                isAgentPlaying = false;
+                playButton.disabled = false;
+                playButton.classList.remove('loading');
+            }
+        }
+
+        async function startHuman() {
+            console.log("startHuman called");
+            if (isHumanPlaying || humanDone || !initialLevel || !initialLevel.grid) {
+                const errorMsg = 'No level loaded or game already completed. Please generate a new level.';
+                document.getElementById('human-error').innerHTML = `Error: ${errorMsg}`;
+                console.error("Human play blocked:", errorMsg);
+                return;
+            }
+            isHumanPlaying = true;
+            const startButton = document.getElementById('start-human');
+            startButton.disabled = true;
+            startButton.classList.add('loading');
+            humanSteps = 0;
+            humanReward = 0.0;
+            humanDone = false;
+            document.getElementById('human-error').innerHTML = '';
+            try {
+                // Only reset if no agent has played, otherwise reuse the agent's level
+                if (!agentReward) {
+                    const data = await fetchWithRetry('/api/reset_game', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ difficulty: currentDifficulty })
+                    });
+                    console.log("Human play reset response:", JSON.stringify(data, null, 2));
+                    if (data.success && data.initial_level && data.initial_level.grid && Array.isArray(data.initial_level.grid) && data.obs && Array.isArray(data.obs)) {
+                        initialLevel = data.initial_level;
+                    } else {
+                        const errorMsg = data.error || `Invalid response: success=${data.success}, initial_level=${!!data.initial_level}, grid=${data.initial_level ? !!data.initial_level.grid : false}, obs=${!!data.obs}`;
+                        console.error("Human play reset error details:", errorMsg, data);
+                        throw new Error(errorMsg);
+                    }
+                }
+                renderGrid(initialLevel.grid, 'human-grid', 'initial', {
+                    taxi: initialLevel.taxi,
+                    passenger: initialLevel.passenger,
+                    dropoff: initialLevel.dropoff
+                });
+                document.getElementById('human-status').innerHTML = `<h4>Step 0 | Total Reward: 0.00</h4>`;
+                document.getElementById('human-reward').innerHTML = '';
+                startButton.disabled = false;
+                startButton.classList.remove('loading');
+                console.log("Human play initialized");
+            } catch (e) {
+                console.error("Human play error:", e.message);
+                document.getElementById('human-error').innerHTML = `Error: ${e.message}. Check server logs and browser console for details.`;
+                isHumanPlaying = false;
+                startButton.disabled = false;
+                startButton.classList.remove('loading');
+            }
+        }
+
+        async function moveHuman(direction) {
+            console.log("moveHuman called with direction:", direction);
+            if (humanDone || !initialLevel || !initialLevel.grid || !isHumanPlaying) {
+                const errorMsg = 'No level loaded or game not started. Please start human play.';
+                document.getElementById('human-error').innerHTML = `Error: ${errorMsg}`;
+                console.error("Human move blocked:", errorMsg);
+                return;
+            }
+            document.getElementById('human-error').innerHTML = '';
+            try {
+                const data = await fetchWithRetry('/api/move_human', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ action: direction })
+                });
+                console.log("Human move response:", JSON.stringify(data, null, 2));
+                if (!data.success) {
+                    document.getElementById('human-error').innerHTML = `Error: ${data.error}`;
+                    return;
+                }
+                humanSteps = data.steps;
+                humanReward = data.reward;
+                humanDone = data.done;
+                renderGrid(data.grid, 'human-grid', 'list');
+                document.getElementById('human-status').innerHTML = `<h4>Step ${humanSteps} | Total Reward: ${humanReward.toFixed(2)}</h4>`;
+                if (humanDone) {
+                    document.getElementById('human-reward').innerHTML = `
+                        <div class='reward-box'>
+                            ✅ Completed in ${humanSteps} steps | Reward: ${humanReward.toFixed(2)} 🎉
+                        </div>
+                    `;
+                    updateRewardComparison();
+                    isHumanPlaying = false;
+                    document.getElementById('start-human').disabled = false;
+                    document.getElementById('start-human').classList.remove('loading');
+                    console.log("Human play completed");
+                }
+            } catch (e) {
+                console.error("Human move error:", e.message);
+                document.getElementById('human-error').innerHTML = `Error: ${e.message}. Check server logs and browser console for details.`;
+            }
+        }
+
+        function updateRewardComparison() {
+            if (agentReward !== null && humanDone) {
+                console.log("Updating reward comparison...");
+                let html = `<h4>Final Reward Comparison</h4>`;
+                html += `<div style="display: flex; justify-content: space-around; flex-wrap: wrap;">`;
+                html += `
+                    <div style="text-align:center; padding:10px; border:1px solid #60a5fa; border-radius:8px; flex: 1; min-width: 200px; margin: 5px; background:#2563eb; color:#ffffff;">
+                        <h4>Agent</h4>
+                        <p>Reward: <strong>${agentReward.toFixed(2)}</strong></p>
+                        <p>Steps: <strong>${agentSteps}</strong></p>
+                    </div>
+                `;
+                html += `
+                    <div style="text-align:center; padding:10px; border:1px solid #60a5fa; border-radius:8px; flex: 1; min-width: 200px; margin: 5px; background:#2563eb; color:#ffffff;">
+                        <h4>Human</h4>
+                        <p>Reward: <strong>${humanReward.toFixed(2)}</strong></p>
+                        <p>Steps: <strong>${humanSteps}</strong></p>
+                    </div>
+                `;
+                html += `</div>`;
+                if (agentReward > humanReward) {
+                    html += `<p style="color:#ffffff;">Agent outperformed the human. Better luck next time!</p>`;
+                } else if (humanReward > agentReward) {
+                    html += `<p style="color:#ffffff;">You outperformed the agent! Great job!</p>`;
+                } else {
+                    html += `<p style="color:#fffff;">It's a tie! Both performed equally well.</p>`;
+                }
+                document.getElementById('reward-comparison').innerHTML = html;
+                console.log("Reward comparison updated");
+            }
+        }
+
+        document.getElementById('generate-level').addEventListener('click', loadNewLevel);
+        document.getElementById('play-agent').addEventListener('click', playAgent);
+        document.getElementById('start-human').addEventListener('click', startHuman);
+        ['up', 'left', 'down', 'right'].forEach(id => {
+            document.getElementById(id).addEventListener('click', () => moveHuman(id));
+        });
+        document.getElementById('difficulty').addEventListener('change', loadNewLevel);
+
+        window.onload = initialize;
+    </script>
+</body>
+</html>

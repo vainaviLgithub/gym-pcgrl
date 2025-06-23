@@ -1,0 +1,55 @@
+{
+    "average_results": {
+        "easy": -341.75001242384315,
+        "medium": -391.53334923585254,
+        "hard": -597.0000237077475
+    },
+    "detailed_log": {
+        "easy": [
+            {
+                "level_index": 0,
+                "reward": -95.00000139325857
+            },
+            {
+                "level_index": 1,
+                "reward": -588.5000234544277
+            },
+            {
+                "level_index": 2,
+                "reward": -588.5000234544277
+            },
+            {
+                "level_index": 3,
+                "reward": -95.00000139325857
+            }
+        ],
+        "medium": [
+            {
+                "level_index": 0,
+                "reward": -597.0000237077475
+            },
+            {
+                "level_index": 1,
+                "reward": -597.0000237077475
+            },
+            {
+                "level_index": 2,
+                "reward": 19.39999970793724
+            }
+        ],
+        "hard": [
+            {
+                "level_index": 0,
+                "reward": -597.0000237077475
+            },
+            {
+                "level_index": 1,
+                "reward": -597.0000237077475
+            },
+            {
+                "level_index": 2,
+                "reward": -597.0000237077475
+            }
+        ]
+    }
+}
